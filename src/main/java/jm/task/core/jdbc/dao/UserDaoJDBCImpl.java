@@ -3,6 +3,7 @@ package jm.task.core.jdbc.dao;
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -22,8 +23,6 @@ public class UserDaoJDBCImpl implements UserDao {
         try (Statement statement = Util.getConnection().createStatement()) {
             String SQl = "create database if not exists mydb";
             statement.execute(SQl);
-//            SQl = "use mydb";
-//            statement.execute(SQl);
             SQl = "create table if not exists mydb.users" +
                     "(id int primary key auto_increment," +
                     " name varchar(255) not null," +
@@ -50,9 +49,13 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void saveUser(String name, String lastName, byte age) {
-        try (Statement statement = Util.getConnection().createStatement()) {
-            String SQl = "insert into mydb.users (name, lastname, age) values ('" + name + "', '" + lastName + "', " + age + ")";
-            statement.executeUpdate(SQl);
+        String sql = "insert into mydb.users (name, lastname, age) values (?, ?, ?)";
+
+        try (PreparedStatement statement = Util.getConnection().prepareStatement(sql)) {
+            statement.setString(1, name);
+            statement.setString(2, lastName);
+            statement.setByte(3, age);
+            statement.executeUpdate();
             LOGGER.log(Level.INFO, String.format("User с именем - %s добавлен в базу данных", name));
 
         } catch (SQLException e) {
@@ -61,9 +64,10 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void removeUserById(long id) {
-        try (Statement statement = Util.getConnection().createStatement()) {
-            String SQl = "delete from mydb.users where id = " + id;
-            statement.execute(SQl);
+        String sql = "delete from mydb.users where id = ?";
+        try (PreparedStatement statement = Util.getConnection().prepareStatement(sql)) {
+            statement.setLong(1, id);
+            statement.executeUpdate();
         } catch (SQLException e) {
             LOGGER.log(Level.WARNING, e.getMessage(), e);
         }
