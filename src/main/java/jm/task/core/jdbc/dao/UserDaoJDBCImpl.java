@@ -22,9 +22,9 @@ public class UserDaoJDBCImpl implements UserDao {
         try (Statement statement = Util.getConnection().createStatement()) {
             String SQl = "create database if not exists mydb";
             statement.execute(SQl);
-            SQl = "use mydb";
-            statement.execute(SQl);
-            SQl = "create table if not exists users" +
+//            SQl = "use mydb";
+//            statement.execute(SQl);
+            SQl = "create table if not exists mydb.users" +
                     "(id int primary key auto_increment," +
                     " name varchar(255) not null," +
                     " lastname varchar(255) not null," +
@@ -39,7 +39,9 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void dropUsersTable() {
         try (Statement statement = Util.getConnection().createStatement()) {
-            String SQl = "drop table if exists users";
+            String SQl = "drop table if exists mydb.users";
+            statement.execute(SQl);
+            SQl = "drop schema if exists mydb";
             statement.execute(SQl);
 
         } catch (SQLException e) {
@@ -49,7 +51,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void saveUser(String name, String lastName, byte age) {
         try (Statement statement = Util.getConnection().createStatement()) {
-            String SQl = "insert into users (name, lastname, age) values ('" + name + "', '" + lastName + "', " + age + ")";
+            String SQl = "insert into mydb.users (name, lastname, age) values ('" + name + "', '" + lastName + "', " + age + ")";
             statement.executeUpdate(SQl);
             LOGGER.log(Level.INFO, String.format("User с именем - %s добавлен в базу данных", name));
 
@@ -60,7 +62,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void removeUserById(long id) {
         try (Statement statement = Util.getConnection().createStatement()) {
-            String SQl = "delete from users where id = " + id;
+            String SQl = "delete from mydb.users where id = " + id;
             statement.execute(SQl);
         } catch (SQLException e) {
             LOGGER.log(Level.WARNING, e.getMessage(), e);
@@ -71,7 +73,7 @@ public class UserDaoJDBCImpl implements UserDao {
         List<User> users = new ArrayList<>();
 
         try (Statement statement = Util.getConnection().createStatement()) {
-            String SQl = "SELECT * FROM users";
+            String SQl = "SELECT * FROM mydb.users";
             ResultSet resultSet = statement.executeQuery(SQl);
             while (resultSet.next()) {
                 User user = new User(resultSet.getString("name"),
@@ -89,7 +91,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void cleanUsersTable() {
         try (Statement statement = Util.getConnection().createStatement()) {
-            String SQl = "truncate table users";
+            String SQl = "truncate table mydb.users";
             statement.execute(SQl);
         } catch (SQLException e) {
             LOGGER.log(Level.WARNING, e.getMessage(), e);

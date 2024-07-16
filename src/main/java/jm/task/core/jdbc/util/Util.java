@@ -1,28 +1,31 @@
 package jm.task.core.jdbc.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Util {
     // реализуйте настройку соеденения с БД
     private static final Logger LOGGER = Logger.getLogger(Util.class.getName());
-    private static final String URL = "jdbc:mysql://localhost:3306/";
-    private static final String USERNAME = "aleva";
-    private static final String PASSWORD = "220-240";
-    private static Connection connection;
 
-    static {
-        try {
-            connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-        } catch (SQLException e) {
-            LOGGER.log(Level.WARNING, e.getMessage(), e);
+    public static Connection getConnection() throws SQLException {
+        Properties props = new Properties();
+        try (InputStream in = Files.newInputStream(Paths.get("src/main/resources/database.properties"))) {
+            props.load(in);
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
-    }
+        String url = props.getProperty("url");
+        String user = props.getProperty("user");
+        String password = props.getProperty("password");
 
-    public static Connection getConnection() {
-        return connection;
+        return DriverManager.getConnection(url, user, password);
     }
 }
