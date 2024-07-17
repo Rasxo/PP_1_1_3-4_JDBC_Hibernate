@@ -24,7 +24,7 @@ public class UserDaoJDBCImpl implements UserDao {
             String SQl = "create database if not exists mydb";
             statement.execute(SQl);
             SQl = "create table if not exists mydb.users" +
-                    "(id int primary key auto_increment," +
+                    "(id bigint not null primary key auto_increment," +
                     " name varchar(255) not null," +
                     " lastname varchar(255) not null," +
                     " age tinyint not null)";
